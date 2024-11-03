@@ -36,6 +36,8 @@
 #define MAX_RECEVE_DATA_SIZE 10
 #define BUFFER_SIZE			 2048
 #define STRING_BUFFER_SIZE   1024
+
+//#define TEST
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -137,20 +139,21 @@ int main(void)
 	HAL_Delay(1000);
 	HAL_UART_Transmit(&huart2, (uint8_t *)"Start\n", 6, 100);
 
-//	// Flash test
-////	Flash_Erase_Sector(0x08060000);
-//	flash_tx_data = (uint32_t)'\n' << 24 | (uint32_t)'B' << 16 | (uint32_t)'U' << 8 | (uint32_t)'F';
-//	Flash_Write_Data(0x08060000, &flash_tx_data, 1);
-////	Flash_Read_Data(0x08060000, flash_rx_data, 1);
-//
-////	Flash_Erase_Sector(0x08060000);
-//	flash_tx_data = (uint32_t)'\n' << 24 | (uint32_t)'F' << 16 | (uint32_t)'C' << 8 | (uint32_t)'B';
-//	Flash_Write_Data(0x08060000, &flash_tx_data, 1);
-//
-//	flash_tx_data = 0;
-//	char *sample_character = "Dumbledore";
-//	HAL_UART_Transmit(&huart2, (uint8_t *)sample_character, 10, 100);
+#ifdef TEST
+	// Flash test
+//	Flash_Erase_Sector(0x08060000);
+	flash_tx_data = (uint32_t)'\n' << 24 | (uint32_t)'B' << 16 | (uint32_t)'U' << 8 | (uint32_t)'F';
+	Flash_Write_Data(0x08060000, &flash_tx_data, 1);
+//	Flash_Read_Data(0x08060000, flash_rx_data, 1);
 
+//	Flash_Erase_Sector(0x08060000);
+	flash_tx_data = (uint32_t)'\n' << 24 | (uint32_t)'F' << 16 | (uint32_t)'C' << 8 | (uint32_t)'B';
+	Flash_Write_Data(0x08060000, &flash_tx_data, 1);
+
+	flash_tx_data = 0;
+	char *sample_character = "Dumbledore";
+	HAL_UART_Transmit(&huart2, (uint8_t *)sample_character, 10, 100);
+#endif
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -160,6 +163,7 @@ int main(void)
 
 	// Set array to NULL
 	memset(received_data, '\0', BUFFER_SIZE);
+	memset(tx_data, '\0', STRING_BUFFER_SIZE);
 
 	// Trigger Receive DMA
 	HAL_UARTEx_ReceiveToIdle_DMA(&huart2, received_data, BUFFER_SIZE);
@@ -188,7 +192,7 @@ int main(void)
 				total_number_of_words++;
 
 				// Write data into FLASH
-8888				Flash_Write_Data(0x08060000, flash_rx_data, total_number_of_words);
+				Flash_Write_Data(0x08060000, flash_rx_data, total_number_of_words);
 
 
 
@@ -216,7 +220,6 @@ int main(void)
 
 			// Write data into FLASH
 			Flash_Write_Data(0x08060000, flash_rx_data, total_number_of_words);
-
 
 			flash_tx_data = 0;
 		}
@@ -256,9 +259,9 @@ int main(void)
 			// Read data from FLASH
 			Flash_Read_Data(0x08060000, flash_rx_data, total_number_of_words);
 
-			numberofbytes = Convert_To_Str(flash_rx_data, &tx_data[0]);
+			numberofbytes = Convert_To_Str(flash_rx_data, tx_data);
 
-			HAL_UART_Transmit(&huart2, (uint8_t *)tx_data, numberofbytes, 30000);
+			HAL_UART_Transmit(&huart2, (uint8_t *)&tx_data[0], numberofbytes, HAL_MAX_DELAY);
 
 			memset(tx_data, '\0', STRING_BUFFER_SIZE);
 

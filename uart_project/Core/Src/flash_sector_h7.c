@@ -292,7 +292,6 @@ void Flash_Read_Data (uint32_t StartSectorAddress, uint32_t *data, uint16_t numb
 {
 	while (1)
 	{
-
 		*data = *(__IO uint32_t *)StartSectorAddress;
 		StartSectorAddress += 4;
 		data++;
