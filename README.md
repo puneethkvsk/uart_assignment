@@ -1,14 +1,13 @@
-# uart_assignment
-# Nymble
+# uart_assignment - Nymble
 
-##Assignment notes:
+### Assignment notes:
 I used a STM32H723 microcontroller. It is a single core chip. I used python script to send string data to the microcontroller @ 2400 Baud rate. Upon receiving data, I parallely stored it in the Flash memory to access it again, to echo it back to the PC, post reception of the string.
 
-##Additional Notes:
+### Additional Notes:
 Please find the microcontroller code I wrote in the directory: uart_assignment/uart_project/Core/Src/main.c. All code is written into a single while loop.
 Please find the script I wrote in the directory : Script/main.py.
 
-##Video details:
+### Video details:
 00:44 - Start script execution, connect to MCU, send data to MCU post connection with MCU.
 
 00:50 - Data transmission from PC to MCU.
@@ -19,5 +18,5 @@ Please find the script I wrote in the directory : Script/main.py.
 
 06:25 - Data transmitted from MCU to PC via serial port
 
-##Bugs:
+### Bugs:
 1. Buffer overflow corner case issue
