@@ -300,7 +300,7 @@ void Flash_Read_Data (uint32_t StartSectorAddress, uint32_t *data, uint16_t numb
 	}
 }
 
-void Convert_To_Str (uint32_t *Data, char *Buf)
+int Convert_To_Str (uint32_t *Data, char *Buf)
 {
 	int numberofbytes = ((strlen((char *)Data)/4) + ((strlen((char *)Data) % 4) != 0)) *4;
 
@@ -308,6 +308,8 @@ void Convert_To_Str (uint32_t *Data, char *Buf)
 	{
 		Buf[i] = Data[i/4]>>(8*(i%4));
 	}
+
+	return numberofbytes;
 }
 
 

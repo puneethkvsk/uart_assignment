@@ -53,7 +53,7 @@ uint64_t flash_begin_address = 0x08060000;
 
 uint8_t received_data[BUFFER_SIZE];
 uint32_t buffer[STRING_BUFFER_SIZE];
-uint8_t tx_data[STRING_BUFFER_SIZE];
+char tx_data[STRING_BUFFER_SIZE];
 
 uint16_t total_number_of_words = 0;
 uint8_t local_count = 0;
@@ -97,8 +97,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 
 	if(Size != BUFFER_SIZE)
 		data_reception_complete = 1;
-	else if(Size == BUFFER_SIZE)
-		buf_overflow = 1;
+//	else if(Size == BUFFER_SIZE)
+//		buf_overflow = 1;
 }
 /* USER CODE END 0 */
 
@@ -138,25 +138,28 @@ int main(void)
 	HAL_UART_Transmit(&huart2, (uint8_t *)"Start\n", 6, 100);
 
 //	// Flash test
-//	Flash_Erase_Sector(0x08060000);
-//	flash_tx_data = (uint32_t)'\n' << 24 | (uint32_t)'N' << 16 | (uint32_t)'U' << 8 | (uint32_t)'P';
+////	Flash_Erase_Sector(0x08060000);
+//	flash_tx_data = (uint32_t)'\n' << 24 | (uint32_t)'B' << 16 | (uint32_t)'U' << 8 | (uint32_t)'F';
 //	Flash_Write_Data(0x08060000, &flash_tx_data, 1);
 ////	Flash_Read_Data(0x08060000, flash_rx_data, 1);
 //
-//	Flash_Erase_Sector(0x08060000);
-//	flash_tx_data = (uint32_t)'\n' << 24 | (uint32_t)'L' << 16 | (uint32_t)'E' << 8 | (uint32_t)'H';
+////	Flash_Erase_Sector(0x08060000);
+//	flash_tx_data = (uint32_t)'\n' << 24 | (uint32_t)'F' << 16 | (uint32_t)'C' << 8 | (uint32_t)'B';
 //	Flash_Write_Data(0x08060000, &flash_tx_data, 1);
+//
+//	flash_tx_data = 0;
+//	char *sample_character = "Dumbledore";
+//	HAL_UART_Transmit(&huart2, (uint8_t *)sample_character, 10, 100);
 
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 
-	// Erase FLASH contents
-	Flash_Erase_Sector(0x08060000);
+
 
 	// Set array to NULL
-	memset(received_data, '~', BUFFER_SIZE);
+	memset(received_data, '\0', BUFFER_SIZE);
 
 	// Trigger Receive DMA
 	HAL_UARTEx_ReceiveToIdle_DMA(&huart2, received_data, BUFFER_SIZE);
@@ -169,32 +172,9 @@ int main(void)
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		while((received_data[receive_buffer_index + previous_received_data_size] != '~') && ((receive_buffer_index + previous_received_data_size) < BUFFER_SIZE))
+		while((received_data[receive_buffer_index + previous_received_data_size] != '\0') && ((receive_buffer_index + previous_received_data_size) < BUFFER_SIZE))
 		{
 			// Save received uint8_t character in uint32_t variable
-//			buffer[main_buffer_index] = ((uint32_t)((received_data[receive_buffer_index + previous_received_data_size + 3]) << 24)) |
-//					((uint32_t)((received_data[receive_buffer_index + previous_received_data_size + 2]) << 16)) |
-//					((uint32_t)((received_data[receive_buffer_index + previous_received_data_size + 1]) << 8)) |
-//					(uint32_t)(received_data[receive_buffer_index + previous_received_data_size]);
-
-//			uint8_t var_one = received_data[receive_buffer_index + previous_received_data_size + 3];
-//			uint8_t var_two = received_data[receive_buffer_index + previous_received_data_size + 2];
-//			uint8_t var_three = received_data[receive_buffer_index + previous_received_data_size + 1];
-//			uint8_t var_four = received_data[receive_buffer_index + previous_received_data_size];
-
-//			flash_tx_data = (uint32_t)((uint32_t)received_data[receive_buffer_index + previous_received_data_size + 3] << 24 | (uint32_t)received_data[receive_buffer_index + previous_received_data_size + 2] << 16 | (uint32_t)received_data[receive_buffer_index + previous_received_data_size + 1] << 8 | (uint32_t)received_data[receive_buffer_index + previous_received_data_size]);
-
-//			flash_tx_data = (uint32_t)received_data[receive_buffer_index + previous_received_data_size + 3] << 24;
-//			flash_tx_data |= (uint32_t)received_data[receive_buffer_index + previous_received_data_size + 2] << 16;
-//			flash_tx_data |= (uint32_t)received_data[receive_buffer_index + previous_received_data_size + 1] << 8;
-//			flash_tx_data |= (uint32_t)received_data[receive_buffer_index + previous_received_data_size];
-
-//			flash_tx_data = (uint32_t)var_one << 24 | (uint32_t)var_two << 16 | (uint32_t)var_three << 8 | (uint32_t)var_four;
-
-//			// Save received uint8_t character
-//			buffer[receive_buffer_index] = received_data[receive_buffer_index + previous_received_data_size];
-
-
 			flash_tx_data |= (uint32_t)received_data[receive_buffer_index + previous_received_data_size] << (8 * local_count);
 
 			if(local_count == 3)
@@ -203,18 +183,14 @@ int main(void)
 
 				// Read data from FLASH
 				Flash_Read_Data(0x08060000, flash_rx_data, total_number_of_words);
-				HAL_Delay(50);
-
-				// Erase FLASH contents
-				Flash_Erase_Sector(0x08060000);
-				HAL_Delay(50);
 
 				*(flash_rx_data + total_number_of_words) = flash_tx_data;
 				total_number_of_words++;
 
 				// Write data into FLASH
-				Flash_Write_Data(0x08060000, flash_rx_data, total_number_of_words);
-				HAL_Delay(50);
+8888				Flash_Write_Data(0x08060000, flash_rx_data, total_number_of_words);
+
+
 
 				flash_tx_data = 0;
 			}
@@ -234,33 +210,16 @@ int main(void)
 
 			// Read data from FLASH
 			Flash_Read_Data(0x08060000, flash_rx_data, total_number_of_words);
-			HAL_Delay(50);
-
-			// Erase FLASH contents
-			Flash_Erase_Sector(0x08060000);
-			HAL_Delay(50);
 
 			*(flash_rx_data + total_number_of_words) = flash_tx_data;
 			total_number_of_words++;
 
 			// Write data into FLASH
 			Flash_Write_Data(0x08060000, flash_rx_data, total_number_of_words);
-			HAL_Delay(50);
+
 
 			flash_tx_data = 0;
-
 		}
-
-//		if(buf_overflow)
-//		{
-//			uint8_t i = 0;
-//			while((received_data[i] != '\0'))
-//			{
-//				buffer[receive_buffer_index] = received_data[i];
-//				i++;
-//				receive_buffer_index++;
-//			}
-//		}
 
 		if(data_reception_complete)
 		{
@@ -272,7 +231,7 @@ int main(void)
 			receive_buffer_index = 0;
 			main_buffer_index = 0;
 
-			memset(received_data, '~', BUFFER_SIZE);
+			memset(received_data, '\0', BUFFER_SIZE);
 //			memset(buffer, '\0', BUFFER_SIZE);
 
 			previous_received_data_size = temp;
@@ -289,35 +248,24 @@ int main(void)
 
 		if(data_copying_complete)
 		{
-			uint32_t i = 0;
-			uint32_t count = 0;
+//			uint32_t i = 0;
+			int numberofbytes = 0;
 
 			data_copying_complete = 0;
 
 			// Read data from FLASH
 			Flash_Read_Data(0x08060000, flash_rx_data, total_number_of_words);
 
-			for(i=0;i<total_number_of_words*4;i+=4)
-			{
-				tx_data[i] = *(flash_rx_data + count) & 0xFF;
-				tx_data[i+1] = *(flash_rx_data + count) & 0xFF00;
-				tx_data[i+2] = *(flash_rx_data + count) & 0xFF0000;
-				tx_data[i+3] = *(flash_rx_data + count) & 0xFF000000;
+			numberofbytes = Convert_To_Str(flash_rx_data, &tx_data[0]);
 
-				count++;
-			}
+			HAL_UART_Transmit(&huart2, (uint8_t *)tx_data, numberofbytes, 30000);
 
-			HAL_UART_Transmit(&huart2, tx_data, i+3, 100);
-
-//			memset(buffer, '~', BUFFER_SIZE);
+			memset(tx_data, '\0', STRING_BUFFER_SIZE);
 
 			total_number_of_words = 0;
-
-			// Erase FLASH contents
-			Flash_Erase_Sector(0x08060000);
 		}
 
-		HAL_Delay(5);
+		HAL_Delay(1);
 	}
 	/* USER CODE END 3 */
 }
